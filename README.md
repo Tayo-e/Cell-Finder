@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CellFinder — Harvesters Church
 
 A mobile-first web app that helps members find their nearest fellowship cell and get directions.
@@ -116,3 +117,7 @@ Then deploy the `dist/` folder to:
 
 After deploying, share the link in your church WhatsApp group.  
 It works in any browser — no app download needed.
+=======
+# Cell-Finder
+Cell Finder for Harvesters
+>>>>>>> 0e009757f024edc44ea41be3bbb2457372d8073c

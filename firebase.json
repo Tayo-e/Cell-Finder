@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "CellFinder",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",

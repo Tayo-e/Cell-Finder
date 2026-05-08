@@ -11,13 +11,27 @@ export function getDistanceKm(lat1, lng1, lat2, lng2) {
 
 function deg2rad(deg) { return deg * (Math.PI / 180); }
 
+// put these helpers in distance.js
+function tieKey(userLat, userLng, cellId) {
+  // deterministic string based on user location + cell id
+  const s = `${userLat.toFixed(4)},${userLng.toFixed(4)}|${cellId}`;
+  // simple 32-bit hash
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
 export function getNearest(cells, userLat, userLng, count = 3) {
   return cells
     .map((cell) => ({
       ...cell,
       distanceKm: getDistanceKm(userLat, userLng, cell.lat, cell.lng),
+      _tie: tieKey(userLat, userLng, cell.id),
     }))
-    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .sort((a, b) => (a.distanceKm - b.distanceKm) || (a._tie - b._tie))
     .slice(0, count);
 }
 
@@ -27,6 +41,7 @@ export function formatDistance(km) {
 }
 
 export function googleMapsUrl(lat, lng, address) {
-  const dest = lat && lng ? `${lat},${lng}` : encodeURIComponent(address);
-  return `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+  const hasAddress = typeof address === "string" && address.trim().length > 0;
+  const destination = hasAddress ? address.trim() : `${lat},${lng}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }

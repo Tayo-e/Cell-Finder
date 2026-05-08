@@ -95,9 +95,10 @@ export async function getUserProfile(uid) {
 }
 
 export async function saveUserCell(uid, cellId) {
-  await updateDoc(doc(db, USERS_COL, uid), {
-    assignedCellId: cellId, updatedAt: serverTimestamp(),
-  });
+  await setDoc(doc(db, USERS_COL, uid), {
+    assignedCellId: cellId,
+    updatedAt: serverTimestamp(),
+  }, { merge: true });
 }
 
 export async function getCellById(cellId) {

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAnalytics, isSupported, logEvent } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -10,9 +10,18 @@ const firebaseConfig = {
   storageBucket: "cellfinder-17a3e.firebasestorage.app",
   messagingSenderId: "23857370822",
   appId: "1:23857370822:web:72810814129d3a496c69c7",
-  measurementId: "G-N4853MMGF0"
+  measurementId: "G-N4853MMGF0",
 };
 
-const app  = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db   = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+
+export const db = getFirestore(app);
+
+const analyticsPromise = isSupported()
+  .then((supported) => (supported ? getAnalytics(app) : null))
+  .catch(() => null);
+
+export async function trackEvent(name, params = {}) {
+  const analytics = await analyticsPromise;
+  if (analytics) logEvent(analytics, name, params);
+}

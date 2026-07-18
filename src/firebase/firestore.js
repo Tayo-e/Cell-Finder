@@ -1,11 +1,10 @@
 import {
   collection, doc, getDocs, getDoc,
-  setDoc, updateDoc, serverTimestamp,
+  onSnapshot, setDoc, serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./config";
 
 const CELLS_COL = "cells";
-const USERS_COL = "users";
 
 // ── 49 Real Harvesters Cell Locations ────────────────────────
 export const SEED_CELLS = [
@@ -82,23 +81,12 @@ export async function getAllCells() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-// ── User profile ──────────────────────────────────────────────
-export async function createUserProfile(uid, { name, email }) {
-  await setDoc(doc(db, USERS_COL, uid), {
-    name, email, assignedCellId: null, createdAt: serverTimestamp(),
-  });
-}
-
-export async function getUserProfile(uid) {
-  const snap = await getDoc(doc(db, USERS_COL, uid));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
-}
-
-export async function saveUserCell(uid, cellId) {
-  await setDoc(doc(db, USERS_COL, uid), {
-    assignedCellId: cellId,
-    updatedAt: serverTimestamp(),
-  }, { merge: true });
+export function subscribeToCells(onCells, onError) {
+  return onSnapshot(
+    collection(db, CELLS_COL),
+    (snap) => onCells(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    onError
+  );
 }
 
 export async function getCellById(cellId) {
